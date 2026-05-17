@@ -1,40 +1,774 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bannii — Portofolio Desainer UI/UX Premium</title>
-    
-    <!-- Tailwind & Font CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        html { scroll-behavior: smooth; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #020305; }
-        ::-webkit-scrollbar-thumb { background: #0e111a; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
-        @keyframes blink { 50% { opacity: 0; } }
-        .cursor-blink { animation: blink 0.8s infinite; }
-        p { letter-spacing: 0.015em; line-height: 1.6; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Periodic 3D Ultimate</title>
 
-        .premium-bg {
-            background-color: #020306;
-            background-attachment: fixed;
-        }
-        .premium-card {
-            background: rgba(6, 8, 14, 0.4); backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.03); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .premium-card:hover {
-            border-color: rgba(6, 182, 212, 0.2);
-            box-shadow: 0 15px 30px -10px rgba(6, 182, 212, 0.1);
-            transform: translateY(-5px);
-        }
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+overflow:hidden;
+background:#020617;
+color:white;
+}
+
+/* BACKGROUND */
+
+body::before{
+content:"";
+position:fixed;
+width:200%;
+height:200%;
+background:
+radial-gradient(circle,
+rgba(0,255,255,0.08) 1px,
+transparent 1px);
+background-size:40px 40px;
+animation:bgmove 20s linear infinite;
+z-index:-1;
+}
+
+@keyframes bgmove{
+from{
+transform:translate(0,0);
+}
+to{
+transform:translate(-200px,-200px);
+}
+}
+
+/* INTRO */
+
+#intro{
+position:fixed;
+inset:0;
+background:black;
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:999999;
+}
+
+#intro h1{
+font-size:45px;
+color:cyan;
+text-shadow:0 0 30px cyan;
+}
+
+/* LOADING */
+
+#loading{
+position:fixed;
+inset:0;
+background:
+radial-gradient(circle at top,#0ea5e9,#020617 70%);
+display:none;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:99999;
+}
+
+.loader{
+width:100px;
+height:100px;
+border-radius:50%;
+border:7px solid rgba(255,255,255,0.08);
+border-top:7px solid cyan;
+border-right:7px solid #2563eb;
+animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+100%{
+transform:rotate(360deg);
+}
+}
+
+#loading h1{
+margin-top:20px;
+color:cyan;
+}
+
+/* LOGIN */
+
+#loginPage{
+display:none;
+position:fixed;
+inset:0;
+justify-content:center;
+align-items:center;
+}
+
+.login-box{
+width:320px;
+padding:30px;
+border-radius:25px;
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(10px);
+box-shadow:0 0 30px rgba(0,255,255,0.2);
+}
+
+.login-box h1{
+text-align:center;
+margin-bottom:10px;
+}
+
+.login-box p{
+text-align:center;
+color:#cbd5e1;
+margin-bottom:20px;
+}
+
+input{
+width:100%;
+padding:15px;
+border:none;
+outline:none;
+border-radius:15px;
+margin-bottom:15px;
+background:#0f172a;
+color:white;
+}
+
+button{
+border:none;
+border-radius:15px;
+padding:14px;
+background:linear-gradient(135deg,#06b6d4,#2563eb);
+color:white;
+font-weight:bold;
+cursor:pointer;
+box-shadow:0 0 20px rgba(0,255,255,0.2);
+}
+
+/* APP */
+
+#app{
+display:none;
+width:100%;
+height:100vh;
+overflow:hidden;
+position:relative;
+}
+
+/* SEARCH */
+
+.topbar{
+position:fixed;
+top:15px;
+width:100%;
+display:flex;
+justify-content:center;
+z-index:999;
+}
+
+.search{
+width:300px;
+padding:14px;
+border:none;
+outline:none;
+border-radius:15px;
+background:#0f172a;
+color:white;
+}
+
+/* SCENE */
+
+#scene{
+width:100%;
+height:100%;
+position:absolute;
+}
+
+/* ELEMENT */
+
+.element{
+width:68px;
+height:88px;
+position:absolute;
+border-radius:14px;
+background:rgba(0,255,255,0.08);
+border:1px solid rgba(0,255,255,0.3);
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+transition:
+transform .7s ease,
+opacity .5s ease;
+box-shadow:
+0 0 15px cyan,
+0 0 40px rgba(0,255,255,0.2);
+overflow:hidden;
+animation:pulse 3s infinite;
+}
+
+.element::before{
+content:"";
+position:absolute;
+inset:0;
+background:
+linear-gradient(
+transparent,
+rgba(255,255,255,0.12),
+transparent);
+animation:scan 2s linear infinite;
+border-radius:14px;
+}
+
+.element::after{
+content:"";
+position:absolute;
+inset:-2px;
+border-radius:14px;
+padding:1px;
+background:
+linear-gradient(
+45deg,
+cyan,
+blue,
+purple,
+cyan
+);
+opacity:0.5;
+}
+
+@keyframes pulse{
+0%{
+box-shadow:0 0 10px cyan;
+}
+50%{
+box-shadow:
+0 0 25px cyan,
+0 0 50px rgba(0,255,255,0.5);
+}
+100%{
+box-shadow:0 0 10px cyan;
+}
+}
+
+@keyframes scan{
+0%{
+transform:translateY(-100%);
+}
+100%{
+transform:translateY(100%);
+}
+}
+
+.number{
+font-size:8px;
+color:#94a3b8;
+}
+
+.symbol{
+font-size:18px;
+font-weight:bold;
+}
+
+.name{
+font-size:7px;
+color:#cbd5e1;
+text-align:center;
+}
+
+/* MENU */
+
+#menu{
+position:fixed;
+bottom:20px;
+width:100%;
+display:flex;
+justify-content:center;
+flex-wrap:wrap;
+gap:10px;
+z-index:999;
+}
+
+/* POPUP */
+
+#popup{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+width:300px;
+background:#0f172a;
+border:1px solid cyan;
+border-radius:20px;
+padding:25px;
+display:none;
+z-index:99999;
+}
+
+.close{
+width:100%;
+margin-top:20px;
+background:red;
+}
+
+/* CLOCK */
+
+#clock{
+position:fixed;
+top:15px;
+right:15px;
+padding:10px 15px;
+border-radius:14px;
+background:rgba(255,255,255,0.08);
+z-index:9999;
+}
+
+/* FPS */
+
+#fps{
+position:fixed;
+top:60px;
+right:15px;
+padding:8px 12px;
+border-radius:12px;
+background:rgba(255,255,255,0.08);
+font-size:12px;
+z-index:9999;
+}
+
+/* AI */
+
+#aiBtn{
+position:fixed;
+left:15px;
+bottom:20px;
+width:60px;
+height:60px;
+border-radius:50%;
+z-index:99999;
+}
+
+#aiPanel{
+position:fixed;
+left:15px;
+bottom:90px;
+width:300px;
+padding:20px;
+border-radius:20px;
+background:rgba(15,23,42,0.95);
+display:none;
+z-index:99999;
+border:1px solid cyan;
+}
+
+#aiAnswer{
+margin-top:15px;
+color:#cbd5e1;
+}
+
+</style>
+</head>
+<body>
+
+<div id="intro">
+<h1>PERIODIC 3D</h1>
+</div>
+
+<div id="loading">
+<div class="loader"></div>
+<h1>Loading...</h1>
+</div>
+
+<div id="loginPage">
+
+<div class="login-box">
+
+<h1>IPA 3D</h1>
+
+<p>Login untuk masuk</p>
+
+<input type="email" id="email"
+placeholder="admin@gmail.com">
+
+<input type="password" id="password"
+placeholder="admin123">
+
+<button onclick="login()"
+style="width:100%">
+LOGIN
+</button>
+
+</div>
+
+</div>
+
+<div id="app">
+
+<div class="topbar">
+
+<input
+type="text"
+class="search"
+placeholder="🔍 Cari unsur..."
+onkeyup="searchElement(this.value)"
+>
+
+</div>
+
+<div id="clock"></div>
+
+<div id="fps"></div>
+
+<div id="scene"></div>
+
+<div id="menu">
+
+<button onclick="tableMode()">
+TABLE
+</button>
+
+<button onclick="sphereMode()">
+SPHERE
+</button>
+
+<button onclick="helixMode()">
+HELIX
+</button>
+
+<button onclick="gridMode()">
+GRID
+</button>
+
+<button onclick="fullscreenMode()">
+FULL
+</button>
+
+</div>
+
+<button id="aiBtn"
+onclick="openAI()">
+AI
+</button>
+
+<div id="aiPanel">
+
+<h2>AI Assistant</h2>
+
+<input
+type="text"
+id="aiInput"
+placeholder="Tanya unsur..."
+>
+
+<button onclick="askAI()">
+KIRIM
+</button>
+
+<div id="aiAnswer"></div>
+
+</div>
+
+</div>
+
+<div id="popup">
+
+<h2 id="popupTitle"></h2>
+
+<p id="popupText"></p>
+
+<button class="close"
+onclick="closePopup()">
+TUTUP
+</button>
+
+</div>
+
+<script>
+
+/* INTRO */
+
+setTimeout(()=>{
+
+intro.style.display="none"
+loading.style.display="flex"
+
+},1500)
+
+setTimeout(()=>{
+
+loading.style.display="none"
+loginPage.style.display="flex"
+
+},3500)
+
+/* LOGIN */
+
+function login(){
+
+if(
+email.value=="admin@gmail.com" &&
+password.value=="admin123"
+){
+
+loginPage.style.display="none"
+app.style.display="block"
+
+}else{
+
+alert("Password salah!")
+
+}
+
+}
+
+/* ELEMENTS */
+
+const elements=[]
+
+for(let i=1;i<=118;i++){
+
+elements.push([
+i,
+"E"+i,
+"Element "+i
+])
+
+}
+
+const scene=document.getElementById("scene")
+
+elements.forEach((item)=>{
+
+let div=document.createElement("div")
+
+div.className="element"
+
+div.innerHTML=`
+
+<div class="number">${item[0]}</div>
+
+<div class="symbol">${item[1]}</div>
+
+<div class="name">${item[2]}</div>
+
+`
+
+div.onclick=()=>{
+
+popup.style.display="block"
+
+popupTitle.innerText=item[2]
+
+popupText.innerHTML=`
+Nomor atom: ${item[0]}
+`
+
+}
+
+scene.appendChild(div)
+
+})
+
+const all=document.querySelectorAll(".element")
+
+/* MODES */
+
+function tableMode(){
+
+all.forEach((el,i)=>{
+
+let col=i%18
+let row=Math.floor(i/18)
+
+el.style.transform=
+`translate(${col*72+5}px,
+${row*95+90}px)`
+
+})
+
+}
+
+function sphereMode(){
+
+all.forEach((el,i)=>{
+
+let angle=i*12
+
+let x=
+Math.cos(angle*Math.PI/180)
+*140+140
+
+let y=
+Math.sin(angle*Math.PI/180)
+*140+280
+
+el.style.transform=
+`translate(${x}px,${y}px)`
+
+})
+
+}
+
+function helixMode(){
+
+all.forEach((el,i)=>{
+
+let x=
+Math.cos(i*0.25)*120+140
+
+let y=
+i*18+20
+
+el.style.transform=
+`translate(${x}px,${y}px)`
+
+})
+
+}
+
+function gridMode(){
+
+all.forEach((el,i)=>{
+
+let col=i%6
+let row=Math.floor(i/6)
+
+el.style.transform=
+`translate(${col*90+20}px,
+${row*100+80}px)`
+
+})
+
+}
+
+/* SEARCH */
+
+function searchElement(value){
+
+all.forEach((el)=>{
+
+if(
+el.innerText.toLowerCase()
+.includes(value.toLowerCase())
+){
+
+el.style.opacity="1"
+
+}else{
+
+el.style.opacity="0.15"
+
+}
+
+})
+
+}
+
+/* FULLSCREEN */
+
+function fullscreenMode(){
+
+document.documentElement
+.requestFullscreen()
+
+}
+
+/* POPUP */
+
+function closePopup(){
+
+popup.style.display="none"
+
+}
+
+/* CLOCK */
+
+function updateClock(){
+
+const now=new Date()
+
+clock.innerHTML=
+now.toLocaleTimeString()
+
+}
+
+setInterval(updateClock,1000)
+
+/* FPS */
+
+let lastFrame=performance.now()
+let frames=0
+
+function countFPS(){
+
+frames++
+
+const now=performance.now()
+
+if(now-lastFrame>=1000){
+
+fps.innerHTML=
+"FPS : "+frames
+
+frames=0
+lastFrame=now
+
+}
+
+requestAnimationFrame(countFPS)
+
+}
+
+countFPS()
+
+/* AI */
+
+function openAI(){
+
+if(aiPanel.style.display=="block"){
+
+aiPanel.style.display="none"
+
+}else{
+
+aiPanel.style.display="block"
+
+}
+
+}
+
+function askAI(){
+
+let q=
+aiInput.value.toLowerCase()
+
+if(q.includes("hydrogen")){
+
+aiAnswer.innerHTML=
+"Hydrogen adalah unsur pertama."
+
+}else{
+
+aiAnswer.innerHTML=
+"AI belum punya data lengkap 😹"
+
+}
+
+}
+
+/* START */
+
+tableMode()
+
+</script>
+
+</body>
+</html>        }
         .aspect-video { aspect-ratio: 16 / 9; }
         @keyframes marquee { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
         .marquee-track { display: flex; width: max-content; animation: marquee 25s linear infinite; }
