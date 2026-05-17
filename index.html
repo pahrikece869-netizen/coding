@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bannii — Portofolio Desainer UI/UX Premium</title>
+    
+    <!-- Tailwind & Font CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        html { scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #020305; }
+        ::-webkit-scrollbar-thumb { background: #0e111a; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+        @keyframes blink { 50% { opacity: 0; } }
+        .cursor-blink { animation: blink 0.8s infinite; }
+        p { letter-spacing: 0.015em; line-height: 1.6; }
+
+        .premium-bg {
+            background-color: #020306;
+            background-attachment: fixed;
+        }
+        .premium-card {
+            background: rgba(6, 8, 14, 0.4); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.03); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .premium-card:hover {
+            border-color: rgba(6, 182, 212, 0.2);
+            box-shadow: 0 15px 30px -10px rgba(6, 182, 212, 0.1);
+            transform: translateY(-5px);
+        }
+        .aspect-video { aspect-ratio: 16 / 9; }
+        @keyframes marquee { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
+        .marquee-track { display: flex; width: max-content; animation: marquee 25s linear infinite; }
+        .load-bar { width: 0%; transition: width 0.1s linear; }
+
+        /* OPTIMASI ENGINE SENTUHAN & ANIMASI HP */
+        body { -webkit-tap-highlight-color: transparent; }
+        button:active, a:active {
+            transform: scale(0.96) !important; transition: transform 0.1s ease !important;
+        }
+        .card-img { transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .premium-card:hover .card-img { transform: scale(1.05); }
+        
+        .mobile-nav-active {
+            color: #06b6d4 !important; text-shadow: 0 0 10px rgba(6, 182, 212, 0.6);
+            transform: translateY(-4px); transition: all 0.3s ease;
+        }
+
+        /* ANIMASI SCROLL REVEAL (FADE IN UP) */
+        .reveal-element {
+            opacity: 0; transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-element.revealed { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body class="premium-bg text-gray-400 font-['Plus_Jakarta_Sans'] overflow-x-hidden selection:bg-cyan-500 selection:text-black relative min-h-screen">
+    
+    <!-- CANVAS UTAMA UNTUK ANIMASI BACKGROUND -->
+    <canvas id="bg-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0 opacity-40"></canvas>
+    <div class="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.005)_1px,transparent_1px)] [background-size:32px_32px] pointer-events-none z-0"></div>
+    <!-- LOADING SCREEN SYSTEM -->
+    <div id="loading-screen" class="fixed inset-0 z-[100] bg-[#020305] flex flex-col justify-center items-center transition-all duration-700 ease-in-out">
+        <div class="max-w-xs w-full px-6 text-center">
+            <div class="font-['Space_Grotesk'] text-xl font-bold tracking-[0.4em] text-white mb-8">BANNII<span class="text-cyan-400">.</span></div>
+            <div class="font-['Space_Grotesk'] text-4xl font-light text-cyan-400 mb-4" id="load-percentage">0%</div>
+            <div class="w-full h-[2px] bg-gray-950 rounded-full overflow-hidden relative">
+                <div id="load-progress-bar" class="load-bar h-full bg-gradient-to-r from-cyan-500 to-indigo-500 shadow-[0_0_12px_rgba(6,182,212,0.5)]"></div>
+            </div>
+            <p class="font-['Space_Grotesk'] text-[9px] uppercase tracking-[0.4em] text-gray-600 font-medium mt-6">Membangun Semesta Digital</p>
+        </div>
+    </div>
+
+    <!-- SYSTEM GATEWAY SCREEN (LOGIN/REGIS) -->
+    <div id="gateway-screen" class="fixed inset-0 z-[90] bg-[#030407] hidden flex-col justify-center items-center p-6 transition-all duration-700 ease-in-out">
+        <div class="w-full max-w-md bg-black/40 backdrop-blur-xl border border-white/[0.03] rounded-3xl p-8 relative z-10 animate-fade-in">
+            <div class="text-center mb-8">
+                <div class="font-['Space_Grotesk'] text-2xl font-bold tracking-widest text-white mb-2">BANNII<span class="text-cyan-400">.</span></div>
+                <p class="text-gray-500 text-xs" id="auth-subtitle">Silakan masuk untuk menjelajahi karya premium.</p>
+            </div>
+            <form id="gatewayLoginForm" class="space-y-4">
+                <input type="email" required placeholder="Alamat Email" class="w-full bg-[#020305] border border-white/[0.05] rounded-xl px-4 py-3.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                <input type="password" required placeholder="Kata Sandi" class="w-full bg-[#020305] border border-white/[0.05] rounded-xl px-4 py-3.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-cyan-500 to-indigo-500 text-black font-bold rounded-xl text-xs uppercase tracking-widest cursor-pointer">Masuk Akun</button>
+            </form>
+            <form id="gatewayRegisterForm" class="space-y-4 hidden">
+                <input type="text" required placeholder="Nama Lengkap" class="w-full bg-[#020305] border border-white/[0.05] rounded-xl px-4 py-3.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                <input type="email" required placeholder="Alamat Email" class="w-full bg-[#020305] border border-white/[0.05] rounded-xl px-4 py-3.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                <input type="password" required placeholder="Buat Kata Sandi" class="w-full bg-[#020305] border border-white/[0.05] rounded-xl px-4 py-3.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-xl text-xs uppercase tracking-widest cursor-pointer">Daftar Sekarang</button>
+            </form>
+            <div class="mt-6 pt-6 border-t border-white/[0.03] text-center space-y-4">
+                <p class="text-[11px] text-gray-500"><span id="switch-text">Belum punya akun?</span> <button onclick="toggleAuthMode()" id="switch-btn" class="text-cyan-400 font-bold cursor-pointer">Daftar</button></p>
+                <button onclick="bypassGateway()" class="w-full py-3 border border-white/[0.05] bg-white/[0.01] text-gray-300 rounded-xl text-xs font-semibold tracking-wide cursor-pointer">Masuk sebagai Tamu <i class="fas fa-arrow-right ml-1 text-[10px]"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COLOR ACCENT SWITCHER BUTTON -->
+    <div class="fixed top-5 right-6 z-[45] flex space-x-2.5 bg-black/40 backdrop-blur-md p-2 rounded-full border border-white/[0.05]">
+        <button onclick="changeAccent('cyan')" class="w-3.5 h-3.5 rounded-full bg-cyan-500 cursor-pointer"></button>
+        <button onclick="changeAccent('emerald')" class="w-3.5 h-3.5 rounded-full bg-emerald-500 cursor-pointer"></button>
+        <button onclick="changeAccent('purple')" class="w-3.5 h-3.5 rounded-full bg-purple-500 cursor-pointer"></button>
+    </div>
+
+    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[60] bg-cyan-500 text-black font-bold px-6 py-3 rounded-xl shadow-xl hidden items-center space-x-2"><i class="fas fa-check-circle"></i><span id="toast-msg">Akses Diberikan!</span></div>
+
+    <!-- Desktop Navbar -->
+    <nav class="fixed top-0 left-0 w-full z-40 bg-[#020306]/70 backdrop-blur-md border-b border-white/[0.02] hidden md:block">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center">
+            <a href="#" class="font-['Space_Grotesk'] text-lg font-bold text-white">BANNII<span class="text-cyan-400 theme-text-accent">.</span></a>
+            <div class="flex items-center space-x-8 text-xs font-bold uppercase tracking-widest text-gray-500">
+                <a href="#hero" class="hover:text-white transition-colors">Beranda</a><a href="#about" class="hover:text-white transition-colors">Layanan</a><a href="#portfolio" class="hover:text-white transition-colors">Karya</a><a href="#contact" class="hover:text-white transition-colors">Hubungi</a>
+                <button onclick="openLoginModal()" class="px-4 py-1.5 border border-white/[0.05] text-gray-400 rounded-lg bg-white/[0.02] hover:text-cyan-400 cursor-pointer">Admin</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav Dock (HP Menu) -->
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[88%] max-w-sm bg-[#06080d]/90 backdrop-blur-xl border border-white/[0.04] rounded-2xl px-6 py-4 flex justify-around items-center md:hidden shadow-2xl">
+        <a href="#hero" class="text-gray-500 mobile-link"><i class="fas fa-th-large"></i></a>
+        <a href="#about" class="text-gray-500 mobile-link"><i class="fas fa-layer-group"></i></a>
+        <a href="#portfolio" class="text-gray-500 mobile-link"><i class="fas fa-folder-open"></i></a>
+        <a href="#contact" class="text-gray-500 mobile-link"><i class="fas fa-paper-plane"></i></a>
+        <button onclick="openLoginModal()" class="text-gray-500 cursor-pointer"><i class="fas fa-lock"></i></button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="min-h-screen flex items-center justify-center relative px-6 z-10">
+        <div class="text-center max-w-3xl reveal-element">
+            <span class="inline-block px-3 py-1 border border-cyan-500/20 rounded-full bg-cyan-500/5 text-cyan-400 theme-text-accent font-['Space_Grotesk'] text-[10px] uppercase tracking-[0.2em] font-bold mb-6">Terbuka Untuk Proyek Lepas & Kontrak</span>
+            <h1 class="text-4xl sm:text-5xl md:text-7xl font-bold font-['Space_Grotesk'] text-white mb-6 tracking-tight">Merancang Sistem <br><span id="typing-text" class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-400 to-indigo-500"></span><span class="cursor-blink text-cyan-400 theme-text-accent">|</span></h1>
+            <p class="text-gray-500 text-xs sm:text-sm mb-10 max-w-md mx-auto">Menggabungkan arah seni visual yang kuat dengan kode fungsional yang bersih untuk melahirkan impresi digital berstandar global bersama Bannii.</p>
+            <div class="flex justify-center gap-4"><a href="#portfolio" class="px-8 py-3.5 bg-white text-black font-bold rounded-xl hover:bg-cyan-400 theme-hover-bg text-xs uppercase tracking-wider transition-all">Lihat Karya</a><a href="#contact" class="px-8 py-3.5 border border-white/[0.08] text-gray-300 font-semibold rounded-xl bg-white/[0.01] text-xs uppercase tracking-wider">Mulai Diskusi</a></div>
+        </div>
+    </section>
+    <!-- Data Statistik -->
+    <section class="border-y border-white/[0.02] bg-white/[0.01] py-12 px-6 relative z-10">
+        <div class="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center reveal-element">
+            <div><h3 id="sat-project" data-target="12" class="font-['Space_Grotesk'] text-3xl font-bold text-white">0+</h3><p class="text-gray-600 text-[9px] uppercase tracking-widest font-bold mt-1">Proyek Selesai</p></div>
+            <div><h3 id="sat-satisfaction" data-target="99" class="font-['Space_Grotesk'] text-3xl font-bold text-cyan-400 theme-text-accent">0%</h3><p class="text-gray-600 text-[9px] uppercase tracking-widest font-bold mt-1">Kepuasan Klien</p></div>
+            <div><h3 id="sat-experience" data-target="2" class="font-['Space_Grotesk'] text-3xl font-bold text-white">0+</h3><p class="text-gray-600 text-[9px] uppercase tracking-widest font-bold mt-1">Tahun Kerja</p></div>
+            <div><h3 id="sat-support" data-target="24" class="font-['Space_Grotesk'] text-3xl font-bold text-purple-400">0/7</h3><p class="text-gray-600 text-[9px] uppercase tracking-widest font-bold mt-1">Dukungan Sistem</p></div>
+        </div>
+    </section>
+
+    <!-- Marquee Ticker -->
+    <section class="py-9 border-b border-white/[0.02] overflow-hidden relative z-10">
+        <div class="marquee-track space-x-12 text-gray-600 font-['Space_Grotesk'] text-xs font-bold uppercase tracking-[0.2em]">
+            <span><i class="fab fa-figma text-purple-500"></i> Desain Figma</span><span><i class="fab fa-html5 text-orange-500"></i> Struktur HTML5</span><span><i class="fab fa-css3-alt text-blue-500"></i> Arsitektur Tailwind</span><span><i class="fab fa-js text-yellow-500"></i> JavaScript ES6</span>
+            <span><i class="fab fa-figma text-purple-500"></i> Desain Figma</span><span><i class="fab fa-html5 text-orange-500"></i> Struktur HTML5</span><span><i class="fab fa-css3-alt text-blue-500"></i> Arsitektur Tailwind</span><span><i class="fab fa-js text-yellow-500"></i> JavaScript ES6</span>
+        </div>
+    </section>
+
+    <!-- Spesialisasi Section -->
+    <section id="about" class="py-24 max-w-7xl mx-auto px-6 relative z-10">
+        <div class="text-center mb-16 reveal-element"><h2 class="text-2xl font-bold font-['Space_Grotesk'] text-white">Spesialisasi Kerja</h2><div class="w-8 h-[2px] bg-cyan-500 theme-bg-accent mx-auto mt-4 rounded-full"></div></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 reveal-element">
+            <div class="premium-card p-8 rounded-2xl"><div class="w-10 h-10 rounded-xl bg-white/[0.02] flex items-center justify-center text-cyan-400 theme-text-accent text-sm mb-6 border border-white/[0.05]"><i class="fas fa-bezier-curve"></i></div><h3 class="text-base font-bold text-white mb-3">Desain Antarmuka (UI)</h3><p class="text-gray-500 text-xs">Penyusunan tata letak presisi tinggi dengan harmoni warna yang kuat serta tipografi modern.</p></div>
+            <div class="premium-card p-8 rounded-2xl"><div class="w-10 h-10 rounded-xl bg-white/[0.02] flex items-center justify-center text-purple-400 text-sm mb-6 border border-white/[0.05]"><i class="fas fa-fingerprint"></i></div><h3 class="text-base font-bold text-white mb-3">Pengalaman Pengguna (UX)</h3><p class="text-gray-500 text-xs">Menganalisis arsitektur informasi demi melahirkan fungsi produk yang intuitif.</p></div>
+            <div class="premium-card p-8 rounded-2xl"><div class="w-10 h-10 rounded-xl bg-white/[0.02] flex items-center justify-center text-emerald-400 text-sm mb-6 border border-white/[0.05]"><i class="fas fa-terminal"></i></div><h3 class="text-base font-bold text-white mb-3">Prototipe Interaktif</h3><p class="text-gray-500 text-xs">Membangun simulasi mikro-interaksi fungsional sebagai panduan utama tim developer.</p></div>
+        </div>
+    </section>
+
+    <!-- Karya Section -->
+    <section id="portfolio" class="py-24 border-y border-white/[0.02] relative z-10">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 reveal-element">
+                <div><h2 class="text-2xl font-bold font-['Space_Grotesk'] text-white">Karya Pilihan</h2><div class="w-8 h-[2px] bg-purple-500 mt-4 rounded-full"></div></div>
+                <div class="flex gap-2 mt-6 md:mt-0 text-[10px] font-bold uppercase tracking-wider">
+                    <button onclick="filterProjects('all')" class="filter-btn px-4 py-2 border border-cyan-500 text-cyan-400 theme-text-accent bg-cyan-500/5 rounded-lg cursor-pointer">Semua</button>
+                    <button onclick="filterProjects('saas')" class="filter-btn px-4 py-2 border border-white/[0.05] text-gray-500 rounded-lg cursor-pointer">SaaS Web</button>
+                    <button onclick="filterProjects('mobile')" class="filter-btn px-4 py-2 border border-white/[0.05] text-gray-500 rounded-lg cursor-pointer">Mobile App</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 reveal-element" id="portfolio-grid">
+                <div class="portfolio-item premium-card rounded-2xl overflow-hidden" data-category="saas">
+                    <div class="aspect-video w-full relative overflow-hidden"><img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80" alt="SaaS" class="card-img w-full h-full object-cover"><span class="absolute top-4 right-4 bg-black/60 text-cyan-400 theme-text-accent text-[9px] font-bold px-3 py-1 rounded-full">SaaS</span></div>
+                    <div class="p-6"><h3 class="text-base font-bold text-white mb-2">NeoDashboard v1.0</h3><p class="text-gray-500 text-xs mb-4">Platform analitik data AI visual.</p>
+                        <div class="flex justify-between items-center pt-4 border-t border-white/[0.02]"><span class="text-[9px] font-mono text-gray-600">#Figma</span><button onclick="openPortfolioModal('NeoDashboard v1.0', 'PRODUK SAAS', 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80', 'Platform NeoDashboard mempermudah visualisasi big data secara real-time.')" class="text-xs text-white font-bold cursor-pointer">Studi Kasus <i class="fas fa-arrow-right ml-1"></i></button></div>
+                    </div>
+                </div>
+                <div class="portfolio-item premium-card rounded-2xl overflow-hidden" data-category="mobile">
+                    <div class="aspect-video w-full relative overflow-hidden"><img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80" alt="Mobile" class="card-img w-full h-full object-cover"><span class="absolute top-4 right-4 bg-black/60 text-purple-400 text-[9px] font-bold px-3 py-1 rounded-full">Mobile</span></div>
+                    <div class="p-6"><h3 class="text-base font-bold text-white mb-2">Veloce Hub Market</h3><p class="text-gray-500 text-xs mb-4">E-commerce e-ritel interaktif.</p>
+                        <div class="flex justify-between items-center pt-4 border-t border-white/[0.02]"><span class="text-[9px] font-mono text-gray-600">#Mobile</span><button onclick="openPortfolioModal('Veloce Hub Market', 'APLIKASI MOBILE', 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80', 'Aplikasi e-commerce modern dengan checkout satu klik cepat.')" class="text-xs text-white font-bold cursor-pointer">Studi Kasus <i class="fas fa-arrow-right ml-1"></i></button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kontak Section -->
+    <section id="contact" class="py-24 max-w-4xl mx-auto px-6 relative z-10">
+        <div class="bg-gradient-to-b from-[#06080d]/80 to-[#020306]/95 rounded-3xl p-8 border border-white/[0.03] reveal-element">
+            <div class="text-center mb-10"><h2 class="text-2xl font-bold font-['Space_Grotesk'] text-white">Mari Berkolaborasi</h2></div>
+            <form id="contactForm" class="space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <input type="text" required placeholder="Nama Lengkap" class="w-full bg-[#020305] border border-white/[0.05] rounded-xl px-4 py-3.5 text-xs text-white focus:outline-none">
+                    <input type="email" required placeholder="Alamat Email" class="w-full bg-[#020305] border border-white/[0.05] rounded-xl px-4 py-3.5 text-xs text-white focus:outline-none">
+                </div>
+                <textarea rows="4" required placeholder="Detail kebutuhan proyek..." class="w-full bg-[#020305] border border-white/[0.05] rounded-xl px-4 py-3.5 text-xs text-white resize-none"></textarea>
+                <button type="submit" class="w-full py-4 bg-white text-black font-bold rounded-xl hover:bg-cyan-400 theme-hover-bg text-xs uppercase tracking-widest cursor-pointer flex justify-center items-center">Kirim Pesan<i class="fas fa-paper-plane ml-2"></i></button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Modals System -->
+    <div id="loginModal" class="fixed inset-0 z-[160] bg-black/80 backdrop-blur-md hidden items-center justify-center p-6 opacity-0 transition-opacity duration-300">
+        <div class="bg-[#0b0d13] border border-white/[0.04] w-full max-w-md rounded-2xl p-8 relative transform scale-95 transition-transform duration-300">
+            <button onclick="closeLoginModal()" class="absolute top-5 right-5 text-gray-500 hover:text-white cursor-pointer"><i class="fas fa-times"></i></button>
+            <form id="loginForm" class="space-y-5">
+                <input type="text" required placeholder="Username" class="w-full bg-[#030407] border border-white/[0.05] rounded-xl px-4 py-3 text-xs text-white focus:outline-none">
+                <input type="password" required placeholder="Password" class="w-full bg-[#030407] border border-white/[0.05] rounded-xl px-4 py-3 text-xs text-white focus:outline-none">
+                <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-cyan-500 to-indigo-500 text-black font-bold rounded-xl text-xs uppercase tracking-widest cursor-pointer">Login Admin</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="portfolio-modal" class="fixed inset-0 z-[150] hidden bg-black/80 backdrop-blur-md transition-opacity duration-300 opacity-0 items-end justify-center">
+        <div id="modal-panel" class="w-full max-w-xl bg-[#090b11] border-t border-white/[0.08] rounded-t-[32px] p-6 space-y-4 max-h-[85vh] overflow-y-auto transform translate-y-full transition-transform duration-500">
+            <div onclick="closePortfolioModal()" class="w-12 h-1 bg-gray-700 rounded-full mx-auto mb-2 cursor-pointer"></div>
+            <h3 id="modal-title" class="font-['Space_Grotesk'] text-xl font-bold text-white">Judul Proyek</h3>
+            <div class="aspect-video w-full rounded-2xl overflow-hidden"><img id="modal-image" src="" class="w-full h-full object-cover"></div>
+            <span id="modal-category" class="text-[10px] font-bold text-cyan-400 theme-text-accent">Kategori</span>
+            <p id="modal-desc" class="text-gray-400 text-xs"></p>
+        </div>
+    </div>
+
+    <footer class="py-8 text-center text-[9px] font-mono border-t border-white/[0.02] pb-28 md:pb-8 relative z-10"><p>&copy; 2026 BANNII DESIGN. HAK CIPTA DILINDUNGI UNDANG-UNDANG.</p></footer>
+    <script>
+        // ENGINE ANIMASI BACKGROUND (CANVAS MATRIX/STARFIELD)
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas); resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5; this.speedY = Math.random() * 0.4 + 0.1;
+                this.alpha = Math.random() * 0.5 + 0.2;
+            }
+            update() {
+                this.y -= this.speedY;
+                if (this.y < 0) { this.y = canvas.height; this.x = Math.random() * canvas.width; }
+            }
+            draw() {
+                ctx.fillStyle = `rgba(6, 182, 212, ${this.alpha})`;
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+            }
+        }
+
+        function initParticles() {
+            particles = []; const count = Math.min(Math.floor(canvas.width / 12), 100);
+            for (let i = 0; i < count; i++) { particles.push(new Particle()); }
+        }
+        initParticles();
+
+        function animateBackground() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateBackground);
+        }
+        animateBackground();
+
+        // ENGINE SCROLL REVEAL (FADE INTERAKTIF)
+        const revealElements = document.querySelectorAll('.reveal-element');
+        function checkReveal() {
+            const triggerBottom = window.innerHeight * 0.88;
+            revealElements.forEach(el => {
+                if (el.getBoundingClientRect().top < triggerBottom) { el.classList.add('revealed'); }
+            });
+        }
+        window.addEventListener('scroll', checkReveal);
+
+        function openLoginModal() {
+            const modal = document.getElementById("loginModal"); modal.classList.remove("hidden"); modal.classList.add("flex");
+            setTimeout(() => { modal.classList.remove("opacity-0"); modal.querySelector(".transform").classList.remove("scale-95"); }, 10);
+        }
+        function closeLoginModal() {
+            const modal = document.getElementById("loginModal"); modal.classList.add("opacity-0"); modal.querySelector(".transform").classList.add("scale-95");
+            setTimeout(() => { modal.classList.add("hidden"); modal.classList.remove("flex"); }, 300);
+        }
+        function openPortfolioModal(title, category, imgSrc, description) {
+            const modal = document.getElementById("portfolio-modal"); const panel = document.getElementById("modal-panel");
+            document.getElementById("modal-title").innerText = title; document.getElementById("modal-category").innerText = category;
+            document.getElementById("modal-image").src = imgSrc; document.getElementById("modal-desc").innerText = description;
+            modal.classList.remove("hidden"); modal.classList.add("flex");
+            setTimeout(() => { modal.classList.add("opacity-100"); panel.classList.remove("translate-y-full"); }, 50);
+        }
+        function closePortfolioModal() {
+            const modal = document.getElementById("portfolio-modal"); const panel = document.getElementById("modal-panel");
+            panel.classList.add("translate-y-full"); modal.classList.remove("opacity-100");
+            setTimeout(() => { modal.classList.add("hidden"); modal.classList.remove("flex"); }, 400);
+        }
+        function changeAccent(color) {
+            let hashColor = '#06b6d4'; if (color === 'emerald') hashColor = '#10b981'; if (color === 'purple') hashColor = '#a855f7';
+            document.querySelectorAll('.theme-text-accent').forEach(el => el.style.color = hashColor);
+            document.querySelectorAll('.theme-bg-accent').forEach(el => el.style.backgroundColor = hashColor);
+        }
+        function filterProjects(category) {
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => { btn.classList.remove('border-cyan-500', 'text-cyan-400', 'bg-cyan-500/5'); btn.classList.add('border-white/[0.05]', 'text-gray-500'); });
+            event.currentTarget.classList.add('border-cyan-500', 'text-cyan-400', 'bg-cyan-500/5');
+            document.querySelectorAll('.portfolio-item').forEach(item => {
+                if (category === 'all' || item.getAttribute('data-category') === category) { item.style.display = 'block'; } else { item.style.display = 'none'; }
+            });
+        }
+        function toggleAuthMode() {
+            const loginForm = document.getElementById("gatewayLoginForm"); const regForm = document.getElementById("gatewayRegisterForm");
+            if (loginForm.classList.contains("hidden")) { loginForm.classList.remove("hidden"); regForm.classList.add("hidden"); } 
+            else { loginForm.classList.add("hidden"); regForm.classList.remove("hidden"); }
+        }
+        function bypassGateway() {
+            document.getElementById("gateway-screen").remove(); setTimeout(checkReveal, 100); animateStats();
+        }
+        function animateStats() {
+            document.querySelectorAll("h3[data-target]").forEach(stat => {
+                const target = +stat.getAttribute("data-target"); let count = 0;
+                const updateCount = () => {
+                    count += target / 40;
+                    if (count < target) { stat.innerText = Math.floor(count) + "+"; setTimeout(updateCount, 25); } 
+                    else { stat.innerText = target + "+"; }
+                }; updateCount();
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const mobileLinks = document.querySelectorAll('nav.md\\:hidden a.mobile-link');
+            window.addEventListener('scroll', () => {
+                const scrollPos = window.scrollY;
+                document.querySelectorAll('section').forEach(sec => {
+                    if (scrollPos >= (sec.offsetTop - 260) && scrollPos < (sec.offsetTop + sec.offsetHeight - 260)) {
+                        mobileLinks.forEach(link => {
+                            if (link.getAttribute('href') === `#${sec.id}`) link.classList.add('mobile-nav-active');
+                            else link.classList.remove('mobile-nav-active');
+                        });
+                    }
+                });
+            });
+
+            let loadValue = 0;
+            const progressInterval = setInterval(() => {
+                loadValue += Math.floor(Math.random() * 8) + 5;
+                if (loadValue >= 100) {
+                    clearInterval(progressInterval); document.getElementById("loading-screen").remove();
+                    document.getElementById("gateway-screen").classList.remove("hidden"); document.getElementById("gateway-screen").classList.add("flex");
+                }
+                document.getElementById("load-percentage").innerText = loadValue + "%";
+                document.getElementById("load-progress-bar").style.width = loadValue + "%";
+            }, 40);
+
+            document.getElementById("gatewayLoginForm").addEventListener("submit", (e) => { e.preventDefault(); bypassGateway(); });
+            
+            const typedWords = ["Digital Premium.", "Solusi UI/UX.", "Ekosistem Web."]; let wordIdx = 0;
+            function runTyping() {
+                let charArr = typedWords[wordIdx].split("");
+                var handleType = function() {
+                    if (charArr.length > 0) { document.getElementById('typing-text').innerHTML += charArr.shift(); setTimeout(handleType, 80); } 
+                    else { setTimeout(runDeleting, 1500); }
+                }; handleType();
+            }
+            function runDeleting() {
+                let charArr = typedWords[wordIdx].split("");
+                var handleDel = function() {
+                    if (charArr.length > 0) { charArr.pop(); document.getElementById('typing-text').innerHTML = charArr.join(""); setTimeout(handleDel, 40); } 
+                    else { wordIdx = (wordIdx + 1) % typedWords.length; setTimeout(runTyping, 400); }
+                }; handleDel();
+            }
+            runTyping();
+        });
+    </script>
+</body>
+</html>
